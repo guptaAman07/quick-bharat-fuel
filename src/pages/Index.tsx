@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -69,9 +68,7 @@ const Index = () => {
                   <p className="text-sm text-gray-500">
                     {isLoadingLocation 
                       ? 'Fetching your location...' 
-                      : userLocation 
-                        ? `Latitude: ${userLocation.lat.toFixed(4)}, Longitude: ${userLocation.lng.toFixed(4)}`
-                        : 'Location not available'}
+                      : "Kapol Vidyanidhi College, Mumbai"}
                   </p>
                 </div>
               </div>
