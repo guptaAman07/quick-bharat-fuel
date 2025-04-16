@@ -76,7 +76,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({
         strokeColor: "white",
         strokeWeight: 2,
       },
-      title: "Your location"
+      title: "Your location (Kandivali West, Mumbai)"
     });
     
     return () => {
