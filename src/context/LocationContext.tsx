@@ -88,19 +88,32 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const refreshLocation = async () => {
     setIsLoadingLocation(true);
     try {
-      // In a real app, we'd use the browser's geolocation API
-      // For now, use default Bangalore coordinates with slight randomization
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      
-      // Randomize location slightly for demo purposes
-      const randomizeFactor = 0.01; // ~1km
-      const randomLat = BANGALORE_COORDINATES.lat + (Math.random() - 0.5) * randomizeFactor;
-      const randomLng = BANGALORE_COORDINATES.lng + (Math.random() - 0.5) * randomizeFactor;
-      
-      const location = { lat: randomLat, lng: randomLng };
-      setUserLocation(location);
-      
-      // In a real app, we'd fetch nearby pumps based on this location
+      // Try to get the current position using the browser's Geolocation API
+      if (navigator.geolocation) {
+        await new Promise<void>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const { latitude, longitude } = position.coords;
+              setUserLocation({ lat: latitude, lng: longitude });
+              resolve();
+            },
+            (error) => {
+              console.error('Geolocation error:', error);
+              // If location access is denied, use default Bangalore coordinates
+              setUserLocation(BANGALORE_COORDINATES);
+              toast.error('Failed to get your location. Using default location.');
+              resolve();
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+          );
+        });
+      } else {
+        // Browser doesn't support Geolocation
+        setUserLocation(BANGALORE_COORDINATES);
+        toast.error('Your browser does not support geolocation. Using default location.');
+      }
+
+      // In a real app, we'd fetch nearby pumps from Google Places API based on this location
       // For the demo, let's just use our mock data with randomized distances
       setNearbyPumps(
         mockPumps.map(pump => ({
@@ -109,6 +122,7 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }))
       );
     } catch (error) {
+      console.error('Location error:', error);
       toast.error('Failed to get your location. Using default location.');
       setUserLocation(BANGALORE_COORDINATES);
       setNearbyPumps(mockPumps);

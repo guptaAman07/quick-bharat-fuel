@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import GoogleMap from '@/components/GoogleMap';
 import { 
   MapPin, 
   RefreshCw,
@@ -21,7 +22,7 @@ import {
 
 const NearbyPage = () => {
   const navigate = useNavigate();
-  const { userLocation, nearbyPumps, isLoadingLocation, refreshLocation } = useLocation();
+  const { userLocation, nearbyPumps, isLoadingLocation, refreshLocation, setSelectedPump, selectedPump } = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   
   const filteredPumps = searchQuery 
@@ -35,11 +36,9 @@ const NearbyPage = () => {
     (a.distance || 0) - (b.distance || 0)
   );
 
-  const MapSection = () => (
-    <div className="bg-gray-200 rounded-lg overflow-hidden h-[400px] flex items-center justify-center">
-      <p className="text-gray-500">Google Maps integration would go here</p>
-    </div>
-  );
+  const handleSelectPump = (pump: PetrolPump) => {
+    setSelectedPump(pump);
+  };
   
   return (
     <Layout>
@@ -87,7 +86,11 @@ const NearbyPage = () => {
             ) : (
               <div className="space-y-3">
                 {sortedPumps.map((pump) => (
-                  <Card key={pump.id}>
+                  <Card 
+                    key={pump.id}
+                    className={`${selectedPump?.id === pump.id ? 'border-2 border-fastfuel-blue' : ''}`}
+                    onClick={() => handleSelectPump(pump)}
+                  >
                     <CardContent className="p-4">
                       <div className="flex justify-between">
                         <div>
@@ -116,7 +119,10 @@ const NearbyPage = () => {
                         <Button 
                           variant="outline"
                           className="h-8 px-3"
-                          onClick={() => navigate(`/pump/${pump.id}`)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/pump/${pump.id}`);
+                          }}
                         >
                           Details
                         </Button>
@@ -136,7 +142,14 @@ const NearbyPage = () => {
           </TabsContent>
           
           <TabsContent value="map">
-            <MapSection />
+            <div className="bg-gray-200 rounded-lg overflow-hidden h-[400px]">
+              <GoogleMap 
+                userLocation={userLocation} 
+                pumps={sortedPumps} 
+                selectedPump={selectedPump}
+                onSelectPump={handleSelectPump}
+              />
+            </div>
           </TabsContent>
         </Tabs>
       </div>
