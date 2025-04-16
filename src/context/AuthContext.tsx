@@ -11,10 +11,19 @@ interface User {
   role: 'admin' | 'user';
 }
 
+interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  address?: string;
+}
+
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string, isAdmin: boolean) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
   logout: () => void;
   updateProfile: (data: Partial<User>) => void;
 }
@@ -80,6 +89,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const register = async (data: RegisterData) => {
+    setIsLoading(true);
+    try {
+      // In a real app, this would be an API call to register
+      // This is a mock implementation for demonstration
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
+
+      // Create a new user
+      const newUser: User = {
+        id: `user${Date.now()}`,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        role: 'user',
+      };
+      
+      setUser(newUser);
+      localStorage.setItem('fastfuel_user', JSON.stringify(newUser));
+      toast.success(`Welcome to FastFuel, ${newUser.name}!`);
+    } catch (error) {
+      toast.error('Registration failed. Please try again.');
+      throw error; // Rethrow to handle in the component
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('fastfuel_user');
@@ -96,7 +133,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout, updateProfile }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

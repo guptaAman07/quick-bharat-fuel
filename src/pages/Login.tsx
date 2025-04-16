@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -144,13 +144,12 @@ const Login = () => {
           <div className="mt-6 pt-4 border-t border-gray-200 text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
-              <button 
-                type="button"
-                onClick={() => navigate('/register')}
+              <Link 
+                to="/register"
                 className="text-fastfuel-blue hover:underline font-medium"
               >
                 Sign up
-              </button>
+              </Link>
             </p>
           </div>
         </div>

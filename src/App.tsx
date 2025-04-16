@@ -17,6 +17,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 // Pages
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import OrderPage from "./pages/OrderPage";
 import OrdersPage from "./pages/OrdersPage";
 import NearbyPage from "./pages/NearbyPage";
@@ -38,6 +39,7 @@ const App = () => (
                 <Routes>
                   {/* Public Routes */}
                   <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
                   
                   {/* Protected Routes */}
                   <Route path="/" element={
