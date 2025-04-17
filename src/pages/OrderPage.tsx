@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { useFuel } from '@/context/FuelContext';
+import { useFuel, FuelType } from '@/context/FuelContext';
 import { useAuth } from '@/context/AuthContext';
 import { usePayment } from '@/context/PaymentContext';
 import { useLocation as useLocationContext } from '@/context/LocationContext';
@@ -72,23 +73,19 @@ const OrderPage = () => {
   const handlePlaceOrder = async () => {
     if (!selectedMethod) return;
     
-    const orderId = `order${Date.now()}`;
-    const selectedPump = selectedPumpId ? nearbyPumps.find(p => p.id === selectedPumpId) : null;
-    
-    createOrder({
+    const orderId = createOrder({
       userId: user.id,
       fuelType: fuel.name,
       quantity,
       totalPrice,
       deliveryAddress: address,
       pumpId: selectedPumpId,
-      pumpName: selectedPump?.name
+      pumpName: selectedPumpId ? nearbyPumps.find(p => p.id === selectedPumpId)?.name : undefined
     });
     
     const paymentSuccessful = await processPayment(totalPrice, orderId);
     
     if (paymentSuccessful) {
-      updateOrderStatus(orderId, 'processing');
       navigate('/orders');
     }
   };

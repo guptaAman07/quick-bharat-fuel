@@ -76,22 +76,8 @@ const mockFuels: FuelType[] = [
   }
 ];
 
-// Initial orders sample
-const mockOrders: Order[] = [
-  {
-    id: 'order1',
-    userId: 'user1',
-    fuelType: 'Petrol',
-    quantity: 10,
-    totalPrice: 1063.10,
-    status: 'delivering',
-    paymentStatus: 'completed',
-    deliveryAddress: 'Koramangala, Bangalore',
-    createdAt: new Date(),
-    estimatedDelivery: new Date(Date.now() + 30 * 60000), // 30 mins from now
-    pumpId: 'pump1'
-  }
-];
+// Initial orders sample - we'll remove this since we're storing orders in localStorage
+const mockOrders: Order[] = [];
 
 export const FuelProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [fuels, setFuels] = useState<FuelType[]>(mockFuels);
@@ -112,12 +98,8 @@ export const FuelProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setOrders(parsedOrders);
       } catch (error) {
         console.error("Failed to parse stored orders:", error);
-        // Initialize with mock orders if parsing fails
-        setOrders(mockOrders);
+        setOrders([]);
       }
-    } else {
-      // If no orders in localStorage, initialize with mock orders
-      setOrders(mockOrders);
     }
   }, []);
 
