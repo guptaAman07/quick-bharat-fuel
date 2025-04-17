@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -27,7 +26,7 @@ import {
   ChevronRight,
   MapPin,
   CreditCard,
-  GasPump
+  Fuel
 } from 'lucide-react';
 
 const OrderPage = () => {

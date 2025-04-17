@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -14,7 +13,7 @@ import {
   AlertCircle,
   MapPin,
   ChevronRight,
-  GasPump
+  Fuel
 } from 'lucide-react';
 
 const OrdersPage = () => {
@@ -120,7 +119,7 @@ const OrdersPage = () => {
                     {/* Petrol Pump Info */}
                     {order.pumpName && (
                       <div className="flex items-start gap-2 text-sm text-gray-500 mb-2">
-                        <GasPump size={16} className="mt-0.5" />
+                        <Fuel size={16} className="mt-0.5" />
                         <span>From {order.pumpName}</span>
                       </div>
                     )}
