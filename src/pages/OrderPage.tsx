@@ -26,7 +26,8 @@ import {
   ChevronRight,
   MapPin,
   CreditCard,
-  Fuel
+  Fuel,
+  GasPump as FuelPumpIcon
 } from 'lucide-react';
 
 const OrderPage = () => {
@@ -103,7 +104,6 @@ const OrderPage = () => {
         
         <h1 className="text-2xl font-bold mb-4">Place Your Order</h1>
         
-        {/* Fuel Details */}
         <Card className="mb-4">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -120,7 +120,6 @@ const OrderPage = () => {
           </CardContent>
         </Card>
         
-        {/* Order Details */}
         <Card className="mb-4">
           <CardContent className="p-4">
             <h3 className="font-semibold mb-3">Order Details</h3>
@@ -157,7 +156,6 @@ const OrderPage = () => {
                 </p>
               </div>
               
-              {/* Select Petrol Pump */}
               <div>
                 <Label htmlFor="pump">Select Petrol Pump</Label>
                 <Select 
@@ -171,7 +169,7 @@ const OrderPage = () => {
                     {nearbyPumps.filter(pump => pump.isOpen).map((pump) => (
                       <SelectItem key={pump.id} value={pump.id}>
                         <div className="flex items-center gap-2">
-                          <GasPump size={16} className="text-gray-500" />
+                          <FuelPumpIcon size={16} className="text-gray-500" />
                           <div>
                             <span>{pump.name}</span>
                             <span className="text-xs text-gray-500 block">
@@ -251,7 +249,6 @@ const OrderPage = () => {
           </CardContent>
         </Card>
         
-        {/* Payment Method */}
         <Card className="mb-6">
           <CardContent className="p-4">
             <h3 className="font-semibold mb-3">Payment Method</h3>
@@ -285,7 +282,6 @@ const OrderPage = () => {
           </CardContent>
         </Card>
         
-        {/* Order Summary */}
         <Card className="mb-4">
           <CardContent className="p-4">
             <h3 className="font-semibold mb-3">Order Summary</h3>
