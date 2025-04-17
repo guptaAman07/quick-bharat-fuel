@@ -13,7 +13,8 @@ import {
   MessageCircle, 
   CheckCircle, 
   HelpCircle,
-  FileText
+  FileText,
+  ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 
