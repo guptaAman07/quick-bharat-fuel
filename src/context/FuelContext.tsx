@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { useAuth } from './AuthContext';
 
 export interface FuelType {
   id: string;
@@ -75,6 +76,7 @@ const mockFuels: FuelType[] = [
   }
 ];
 
+// Initial orders sample
 const mockOrders: Order[] = [
   {
     id: 'order1',
@@ -93,24 +95,37 @@ const mockOrders: Order[] = [
 
 export const FuelProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [fuels, setFuels] = useState<FuelType[]>(mockFuels);
-  const [orders, setOrders] = useState<Order[]>(mockOrders);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     // In a real app, we'd fetch this data from an API
     const storedOrders = localStorage.getItem('fastfuel_orders');
     if (storedOrders) {
-      setOrders(JSON.parse(storedOrders).map((order: any) => ({
-        ...order,
-        createdAt: new Date(order.createdAt),
-        estimatedDelivery: order.estimatedDelivery ? new Date(order.estimatedDelivery) : undefined,
-      })));
+      try {
+        const parsedOrders = JSON.parse(storedOrders).map((order: any) => ({
+          ...order,
+          createdAt: new Date(order.createdAt),
+          estimatedDelivery: order.estimatedDelivery ? new Date(order.estimatedDelivery) : undefined,
+        }));
+        setOrders(parsedOrders);
+      } catch (error) {
+        console.error("Failed to parse stored orders:", error);
+        // Initialize with mock orders if parsing fails
+        setOrders(mockOrders);
+      }
+    } else {
+      // If no orders in localStorage, initialize with mock orders
+      setOrders(mockOrders);
     }
   }, []);
 
   // Save orders to localStorage whenever orders change
   useEffect(() => {
-    localStorage.setItem('fastfuel_orders', JSON.stringify(orders));
+    if (orders.length > 0) {
+      localStorage.setItem('fastfuel_orders', JSON.stringify(orders));
+    }
   }, [orders]);
 
   const createOrder = (order: Omit<Order, 'id' | 'createdAt' | 'status' | 'paymentStatus'>) => {
@@ -124,7 +139,7 @@ export const FuelProvider: React.FC<{ children: React.ReactNode }> = ({ children
       estimatedDelivery: new Date(Date.now() + 45 * 60000), // 45 mins from now
     };
     
-    setOrders([...orders, newOrder]);
+    setOrders(prevOrders => [...prevOrders, newOrder]);
     toast.success('Order placed successfully!');
     return orderId;
   };

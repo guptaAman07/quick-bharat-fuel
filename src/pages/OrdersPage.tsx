@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -21,7 +22,8 @@ const OrdersPage = () => {
   const { user } = useAuth();
   const { orders } = useFuel();
   
-  const userOrders = orders.filter(order => order.userId === user?.id);
+  // Filter orders for the current user only
+  const userOrders = user ? orders.filter(order => order.userId === user.id) : [];
   
   const getStatusIcon = (status: string) => {
     switch (status) {
