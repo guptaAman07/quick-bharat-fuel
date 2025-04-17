@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState } from 'react';
 import { toast } from 'sonner';
-import { useFuel, Order } from './FuelContext';
+import { useFuel } from './FuelContext';
 
 interface PaymentMethod {
   id: string;
@@ -61,7 +61,7 @@ const defaultPaymentMethods: PaymentMethod[] = [
 ];
 
 export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { updateOrderStatus } = useFuel();
+  const { updateOrderStatus, updatePaymentStatus } = useFuel();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(defaultPaymentMethods);
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(
     paymentMethods.find(method => method.isDefault) || null
@@ -101,7 +101,10 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       // For this demo, we'll simulate a successful payment
       toast.success(`Payment of ₹${amount.toFixed(2)} processed successfully`);
       
-      // Update order status
+      // Update payment status to completed
+      updatePaymentStatus(orderId, 'completed');
+      
+      // Update order status to processing
       updateOrderStatus(orderId, 'processing');
       
       return true;

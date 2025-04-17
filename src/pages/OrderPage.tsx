@@ -34,7 +34,7 @@ const OrderPage = () => {
   const { fuelId } = useParams();
   const routeLocation = useLocation();
   const { user } = useAuth();
-  const { fuels, createOrder } = useFuel();
+  const { fuels, createOrder, updateOrderStatus } = useFuel();
   const { nearbyPumps, setSelectedPump } = useLocationContext();
   const { 
     paymentMethods, 
@@ -88,6 +88,7 @@ const OrderPage = () => {
     const paymentSuccessful = await processPayment(totalPrice, orderId);
     
     if (paymentSuccessful) {
+      updateOrderStatus(orderId, 'processing');
       navigate('/orders');
     }
   };
@@ -103,7 +104,6 @@ const OrderPage = () => {
         
         <h1 className="text-2xl font-bold mb-4">Place Your Order</h1>
         
-        {/* Fuel Details */}
         <Card className="mb-4">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -120,7 +120,6 @@ const OrderPage = () => {
           </CardContent>
         </Card>
         
-        {/* Order Details */}
         <Card className="mb-4">
           <CardContent className="p-4">
             <h3 className="font-semibold mb-3">Order Details</h3>
@@ -157,7 +156,6 @@ const OrderPage = () => {
                 </p>
               </div>
               
-              {/* Select Petrol Pump */}
               <div>
                 <Label htmlFor="pump">Select Petrol Pump</Label>
                 <Select 
@@ -251,7 +249,6 @@ const OrderPage = () => {
           </CardContent>
         </Card>
         
-        {/* Payment Method */}
         <Card className="mb-6">
           <CardContent className="p-4">
             <h3 className="font-semibold mb-3">Payment Method</h3>
@@ -285,7 +282,6 @@ const OrderPage = () => {
           </CardContent>
         </Card>
         
-        {/* Order Summary */}
         <Card className="mb-4">
           <CardContent className="p-4">
             <h3 className="font-semibold mb-3">Order Summary</h3>

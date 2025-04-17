@@ -29,8 +29,9 @@ interface FuelContextType {
   fuels: FuelType[];
   orders: Order[];
   isLoading: boolean;
-  createOrder: (order: Omit<Order, 'id' | 'createdAt' | 'status' | 'paymentStatus'>) => void;
+  createOrder: (order: Omit<Order, 'id' | 'createdAt' | 'status' | 'paymentStatus'>) => string;
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
+  updatePaymentStatus: (orderId: string, status: 'pending' | 'completed') => void;
 }
 
 const FuelContext = createContext<FuelContextType | null>(null);
@@ -113,9 +114,10 @@ export const FuelProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [orders]);
 
   const createOrder = (order: Omit<Order, 'id' | 'createdAt' | 'status' | 'paymentStatus'>) => {
+    const orderId = `order${Date.now()}`;
     const newOrder: Order = {
       ...order,
-      id: `order${Date.now()}`,
+      id: orderId,
       createdAt: new Date(),
       status: 'pending',
       paymentStatus: 'pending',
@@ -124,19 +126,43 @@ export const FuelProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     setOrders([...orders, newOrder]);
     toast.success('Order placed successfully!');
+    return orderId;
   };
 
   const updateOrderStatus = (orderId: string, status: Order['status']) => {
     setOrders(
       orders.map(order => 
-        order.id === orderId ? { ...order, status } : order
+        order.id === orderId ? { 
+          ...order, 
+          status,
+          // If the status is 'processing', automatically update payment status to 'completed'
+          paymentStatus: status === 'processing' ? 'completed' : order.paymentStatus
+        } : order
       )
     );
     toast.success(`Order status updated to ${status}`);
   };
+  
+  const updatePaymentStatus = (orderId: string, status: 'pending' | 'completed') => {
+    setOrders(
+      orders.map(order => 
+        order.id === orderId ? { ...order, paymentStatus: status } : order
+      )
+    );
+    if (status === 'completed') {
+      toast.success('Payment completed successfully!');
+    }
+  };
 
   return (
-    <FuelContext.Provider value={{ fuels, orders, isLoading, createOrder, updateOrderStatus }}>
+    <FuelContext.Provider value={{ 
+      fuels, 
+      orders, 
+      isLoading, 
+      createOrder, 
+      updateOrderStatus,
+      updatePaymentStatus 
+    }}>
       {children}
     </FuelContext.Provider>
   );
