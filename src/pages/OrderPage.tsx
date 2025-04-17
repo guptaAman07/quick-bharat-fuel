@@ -171,7 +171,7 @@ const OrderPage = () => {
                     {nearbyPumps.filter(pump => pump.isOpen).map((pump) => (
                       <SelectItem key={pump.id} value={pump.id}>
                         <div className="flex items-center gap-2">
-                          <GasPump size={16} className="text-gray-500" />
+                          <Fuel size={16} className="text-gray-500" />
                           <div>
                             <span>{pump.name}</span>
                             <span className="text-xs text-gray-500 block">
