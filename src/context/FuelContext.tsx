@@ -22,6 +22,7 @@ export interface Order {
   createdAt: Date;
   estimatedDelivery?: Date;
   pumpId?: string;
+  pumpName?: string;
 }
 
 interface FuelContextType {

@@ -13,7 +13,8 @@ import {
   Truck,
   AlertCircle,
   MapPin,
-  ChevronRight
+  ChevronRight,
+  GasPump
 } from 'lucide-react';
 
 const OrdersPage = () => {
@@ -115,6 +116,14 @@ const OrdersPage = () => {
                         </p>
                       </div>
                     </div>
+                    
+                    {/* Petrol Pump Info */}
+                    {order.pumpName && (
+                      <div className="flex items-start gap-2 text-sm text-gray-500 mb-2">
+                        <GasPump size={16} className="mt-0.5" />
+                        <span>From {order.pumpName}</span>
+                      </div>
+                    )}
                     
                     {/* Delivery Info */}
                     <div className="flex items-start gap-2 text-sm text-gray-500 mb-3">

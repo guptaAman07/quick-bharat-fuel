@@ -5,6 +5,7 @@ import Layout from '@/components/Layout';
 import { useFuel } from '@/context/FuelContext';
 import { useAuth } from '@/context/AuthContext';
 import { usePayment } from '@/context/PaymentContext';
+import { useLocation as useLocationContext } from '@/context/LocationContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,13 +13,21 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import { 
   Droplet, 
   Calendar, 
   Clock,
   CheckCircle,
   ChevronRight,
   MapPin,
-  CreditCard
+  CreditCard,
+  GasPump
 } from 'lucide-react';
 
 const OrderPage = () => {
@@ -27,6 +36,7 @@ const OrderPage = () => {
   const routeLocation = useLocation();
   const { user } = useAuth();
   const { fuels, createOrder } = useFuel();
+  const { nearbyPumps, setSelectedPump } = useLocationContext();
   const { 
     paymentMethods, 
     selectedMethod, 
@@ -42,6 +52,9 @@ const OrderPage = () => {
   const [scheduledDelivery, setScheduledDelivery] = useState('now');
   const [scheduledDate, setScheduledDate] = useState('');
   const [scheduledTime, setScheduledTime] = useState('');
+  const [selectedPumpId, setSelectedPumpId] = useState<string>(
+    routeLocation.state?.pumpId || ''
+  );
   
   const fuel = fuels.find(f => f.id === fuelId);
   
@@ -61,6 +74,7 @@ const OrderPage = () => {
     if (!selectedMethod) return;
     
     const orderId = `order${Date.now()}`;
+    const selectedPump = selectedPumpId ? nearbyPumps.find(p => p.id === selectedPumpId) : null;
     
     createOrder({
       userId: user.id,
@@ -68,6 +82,8 @@ const OrderPage = () => {
       quantity,
       totalPrice,
       deliveryAddress: address,
+      pumpId: selectedPumpId,
+      pumpName: selectedPump?.name
     });
     
     const paymentSuccessful = await processPayment(totalPrice, orderId);
@@ -140,6 +156,39 @@ const OrderPage = () => {
                 <p className="text-sm text-gray-500 mt-1">
                   Total: ₹{totalPrice.toFixed(2)}
                 </p>
+              </div>
+              
+              {/* Select Petrol Pump */}
+              <div>
+                <Label htmlFor="pump">Select Petrol Pump</Label>
+                <Select 
+                  value={selectedPumpId} 
+                  onValueChange={setSelectedPumpId}
+                >
+                  <SelectTrigger id="pump" className="mt-1">
+                    <SelectValue placeholder="Select a petrol pump" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {nearbyPumps.filter(pump => pump.isOpen).map((pump) => (
+                      <SelectItem key={pump.id} value={pump.id}>
+                        <div className="flex items-center gap-2">
+                          <GasPump size={16} className="text-gray-500" />
+                          <div>
+                            <span>{pump.name}</span>
+                            <span className="text-xs text-gray-500 block">
+                              {pump.distance} km • {pump.address}
+                            </span>
+                          </div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {!selectedPumpId && (
+                  <p className="text-xs text-amber-500 mt-1">
+                    Please select a petrol pump for your order
+                  </p>
+                )}
               </div>
               
               <div>
@@ -266,7 +315,7 @@ const OrderPage = () => {
         <Button 
           className="w-full bg-fastfuel-orange hover:bg-orange-600 text-white py-6"
           onClick={handlePlaceOrder}
-          disabled={processingPayment || !address || !selectedMethod}
+          disabled={processingPayment || !address || !selectedMethod || !selectedPumpId}
         >
           {processingPayment ? (
             <div className="flex items-center gap-2">
