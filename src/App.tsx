@@ -20,8 +20,11 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import OrderPage from "./pages/OrderPage";
 import OrdersPage from "./pages/OrdersPage";
+import OrderDetailsPage from "./pages/OrderDetailsPage";
 import NearbyPage from "./pages/NearbyPage";
 import ProfilePage from "./pages/ProfilePage";
+import SupportPage from "./pages/SupportPage";
+import TermsPage from "./pages/TermsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +43,7 @@ const App = () => (
                   {/* Public Routes */}
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
+                  <Route path="/terms" element={<TermsPage />} />
                   
                   {/* Protected Routes */}
                   <Route path="/" element={
@@ -57,6 +61,11 @@ const App = () => (
                       <OrdersPage />
                     </ProtectedRoute>
                   } />
+                  <Route path="/order-details/:orderId" element={
+                    <ProtectedRoute>
+                      <OrderDetailsPage />
+                    </ProtectedRoute>
+                  } />
                   <Route path="/nearby" element={
                     <ProtectedRoute>
                       <NearbyPage />
@@ -65,6 +74,11 @@ const App = () => (
                   <Route path="/profile" element={
                     <ProtectedRoute>
                       <ProfilePage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/support" element={
+                    <ProtectedRoute>
+                      <SupportPage />
                     </ProtectedRoute>
                   } />
                   

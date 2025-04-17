@@ -3,10 +3,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useLocation, PetrolPump } from '@/context/LocationContext';
+import { useFuel } from '@/context/FuelContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import GoogleMap from '@/components/GoogleMap';
 import { 
   MapPin, 
@@ -17,13 +20,20 @@ import {
   Building,
   Route,
   Clock,
-  Search
+  Search,
+  Droplet,
+  ChevronRight
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const NearbyPage = () => {
   const navigate = useNavigate();
   const { userLocation, nearbyPumps, isLoadingLocation, refreshLocation, setSelectedPump, selectedPump } = useLocation();
+  const { fuels } = useFuel();
   const [searchQuery, setSearchQuery] = useState('');
+  const [showOrderDialog, setShowOrderDialog] = useState(false);
+  const [selectedFuel, setSelectedFuel] = useState(fuels[0].id);
+  const [selectedQuantity, setSelectedQuantity] = useState(10);
   
   const filteredPumps = searchQuery 
     ? nearbyPumps.filter(pump => 
@@ -38,6 +48,25 @@ const NearbyPage = () => {
 
   const handleSelectPump = (pump: PetrolPump) => {
     setSelectedPump(pump);
+  };
+  
+  const handleOrderFromPump = (pump: PetrolPump) => {
+    setSelectedPump(pump);
+    setShowOrderDialog(true);
+  };
+  
+  const handleStartOrder = () => {
+    if (selectedFuel && selectedPump) {
+      navigate(`/order/${selectedFuel}`, {
+        state: {
+          quantity: selectedQuantity,
+          pumpId: selectedPump.id,
+          pumpName: selectedPump.name,
+          pumpAddress: selectedPump.address
+        }
+      });
+      toast.success(`Starting order from ${selectedPump.name}`);
+    }
   };
   
   return (
@@ -116,16 +145,29 @@ const NearbyPage = () => {
                           </div>
                         </div>
                         
-                        <Button 
-                          variant="outline"
-                          className="h-8 px-3"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/pump/${pump.id}`);
-                          }}
-                        >
-                          Details
-                        </Button>
+                        <div>
+                          <Button 
+                            variant="outline"
+                            className="h-8 px-3 mb-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/pump/${pump.id}`);
+                            }}
+                          >
+                            Details
+                          </Button>
+                          
+                          <Button 
+                            className="h-8 px-3 bg-fastfuel-orange hover:bg-orange-600 block w-full"
+                            disabled={!pump.isOpen}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOrderFromPump(pump);
+                            }}
+                          >
+                            Order Here
+                          </Button>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -150,8 +192,110 @@ const NearbyPage = () => {
                 onSelectPump={handleSelectPump}
               />
             </div>
+            
+            {selectedPump && (
+              <Card className="mt-3">
+                <CardContent className="p-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="font-medium">{selectedPump.name}</h3>
+                      <p className="text-xs text-gray-500">{selectedPump.address}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className={`h-2 w-2 rounded-full ${selectedPump.isOpen ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                        <span className="text-xs">{selectedPump.isOpen ? 'Open Now' : 'Closed'}</span>
+                        <span className="text-xs text-gray-500">•</span>
+                        <span className="text-xs">{selectedPump.distance} km away</span>
+                      </div>
+                    </div>
+                    <Button 
+                      className="bg-fastfuel-orange hover:bg-orange-600"
+                      disabled={!selectedPump.isOpen}
+                      onClick={() => handleOrderFromPump(selectedPump)}
+                    >
+                      Order Here
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
+        
+        {/* Order Dialog */}
+        <Dialog open={showOrderDialog} onOpenChange={setShowOrderDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Order Fuel from {selectedPump?.name}</DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Select Fuel Type</label>
+                <Select value={selectedFuel} onValueChange={setSelectedFuel}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select fuel type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {fuels.map(fuel => (
+                      <SelectItem key={fuel.id} value={fuel.id}>
+                        <div className="flex items-center gap-2">
+                          <Droplet size={14} />
+                          <span>{fuel.name} - ₹{fuel.price}/litre</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Quantity (Litres)</label>
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setSelectedQuantity(prev => Math.max(1, prev - 1))}
+                  >
+                    -
+                  </Button>
+                  <Input
+                    type="number"
+                    value={selectedQuantity}
+                    onChange={(e) => setSelectedQuantity(Number(e.target.value))}
+                    min={1}
+                    className="text-center"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setSelectedQuantity(prev => prev + 1)}
+                  >
+                    +
+                  </Button>
+                </div>
+              </div>
+              
+              <div className="bg-gray-50 p-3 rounded-md">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm">Subtotal</span>
+                  <span className="font-medium">
+                    ₹{(fuels.find(f => f.id === selectedFuel)?.price || 0) * selectedQuantity}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-500">
+                  *Final price including delivery fee and taxes will be shown on checkout
+                </div>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowOrderDialog(false)}>Cancel</Button>
+              <Button onClick={handleStartOrder}>Continue to Checkout</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );

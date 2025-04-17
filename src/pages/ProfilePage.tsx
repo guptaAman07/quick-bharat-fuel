@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,18 +21,20 @@ import {
   HelpCircle,
   FileText,
   ChevronRight,
-  CreditCard
+  CreditCard,
+  MessageCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
   const { user, logout, updateProfile } = useAuth();
   
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-    address: user?.address || '',
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
   });
   
   const [notifications, setNotifications] = useState({
@@ -39,6 +42,17 @@ const ProfilePage = () => {
     promotions: false,
     fuelPriceAlerts: true
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        address: user.address || '',
+      });
+    }
+  }, [user]);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -48,6 +62,11 @@ const ProfilePage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateProfile(formData);
+  };
+
+  const callCustomerSupport = (number: string) => {
+    window.location.href = `tel:${number}`;
+    toast.info(`Calling customer support: ${number}`);
   };
   
   return (
@@ -244,19 +263,69 @@ const ProfilePage = () => {
           </CardContent>
         </Card>
         
+        {/* Customer Support */}
+        <Card className="mb-6">
+          <CardContent className="p-4">
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <HelpCircle size={16} />
+              Help & Support
+            </h3>
+            <div className="space-y-3">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start" 
+                onClick={() => navigate('/support')}
+              >
+                <MessageCircle size={16} className="mr-2 text-fastfuel-blue" />
+                Chat with Customer Executive
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="w-full justify-start" 
+                onClick={() => callCustomerSupport('9326267664')}
+              >
+                <Phone size={16} className="mr-2 text-green-600" />
+                Call Support (9326267664)
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="w-full justify-start" 
+                onClick={() => callCustomerSupport('8976453592')}
+              >
+                <Phone size={16} className="mr-2 text-green-600" />
+                Call Support (8976453592)
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        
         {/* Other Options */}
         <Card className="mb-6">
           <CardContent className="p-0">
             <div className="divide-y">
-              <Button variant="ghost" className="w-full justify-start h-auto py-3 rounded-none">
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start h-auto py-3 rounded-none"
+                onClick={() => navigate('/support')}
+              >
                 <HelpCircle size={16} className="mr-2 text-gray-500" />
                 Help & Support
               </Button>
-              <Button variant="ghost" className="w-full justify-start h-auto py-3 rounded-none">
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start h-auto py-3 rounded-none"
+                onClick={() => navigate('/terms')}
+              >
                 <Shield size={16} className="mr-2 text-gray-500" />
                 Privacy Policy
               </Button>
-              <Button variant="ghost" className="w-full justify-start h-auto py-3 rounded-none">
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start h-auto py-3 rounded-none"
+                onClick={() => navigate('/terms')}
+              >
                 <FileText size={16} className="mr-2 text-gray-500" />
                 Terms & Conditions
               </Button>
@@ -266,6 +335,7 @@ const ProfilePage = () => {
                 onClick={() => {
                   logout();
                   toast.success('Logged out successfully');
+                  navigate('/login');
                 }}
               >
                 <LogOut size={16} className="mr-2" />

@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -53,7 +54,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       // In a real app, this would be an API call to authenticate
-      // This is a mock implementation for demonstration
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
 
       // Check if login credentials are valid
@@ -92,7 +92,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       // In a real app, this would be an API call to register
-      // This is a mock implementation for demonstration
       await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
 
       // Create a new user

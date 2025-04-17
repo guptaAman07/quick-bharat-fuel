@@ -60,7 +60,7 @@ const OrdersPage = () => {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true
-    }).format(date);
+    }).format(new Date(date));
   };
 
   return (
@@ -132,7 +132,7 @@ const OrdersPage = () => {
                       </div>
                     )}
                     
-                    {/* Action Button */}
+                    {/* Action Button - Updated to go to order details page */}
                     <Button 
                       variant="outline" 
                       className="w-full mt-2"
